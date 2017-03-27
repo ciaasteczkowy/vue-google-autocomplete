@@ -25,8 +25,13 @@
           },
 
           types: {
-            type: Array,
-            default: ['address']
+            type: String,
+            default: 'address'
+          },
+
+          enableGeolocation: {
+            type: Boolean,
+            default: false
           }
         },
 
@@ -45,7 +50,7 @@
         mounted: function() {
            this.autocomplete = new google.maps.places.Autocomplete(
                 document.getElementById(this.id),
-                { types: this.types }
+                { types: [this.types] }
             );
 
            this.autocomplete.addListener('place_changed', () => {
@@ -87,18 +92,20 @@
             // Bias the autocomplete object to the user's geographical location,
             // as supplied by the browser's 'navigator.geolocation' object.
             geolocate() {
-                if (navigator.geolocation) {
-                  navigator.geolocation.getCurrentPosition(position => {
-                    let geolocation = {
-                      lat: position.coords.latitude,
-                      lng: position.coords.longitude
-                    };
-                    let circle = new google.maps.Circle({
-                      center: geolocation,
-                      radius: position.coords.accuracy
-                    });
-                    this.autocomplete.setBounds(circle.getBounds());
-                  });
+                if (this.enableGeolocation) {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(position => {
+                        let geolocation = {
+                          lat: position.coords.latitude,
+                          lng: position.coords.longitude
+                        };
+                        let circle = new google.maps.Circle({
+                          center: geolocation,
+                          radius: position.coords.accuracy
+                        });
+                        this.autocomplete.setBounds(circle.getBounds());
+                      });
+                    }
                 }
             }
         }
